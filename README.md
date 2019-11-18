@@ -6,7 +6,7 @@ PySupervisor permet de savoir depuis votre poste quelles sont les postes actuell
 ### Fonctionnalites :
 
 - Multi-plateformes
-- 
+- Simple d'utilisation
 - Markdown Extras : Support ToC (Table of Contents), Emoji, Task lists, @Links...;
 - Compatible with all major browsers (IE8+), compatible Zepto.js and iPad;
 - Support identification, interpretation, fliter of the HTML tags;
