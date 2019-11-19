@@ -9,6 +9,7 @@ PySupervisor permet de savoir depuis votre poste quelles sont les postes actuell
 - Multi-plateformes
 - Simple d'utilisation
 - Simple d'installation
+- Detection automatique du reseau et de sa taille
 
 
 ### Installation :
