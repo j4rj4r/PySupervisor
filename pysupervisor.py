@@ -2,7 +2,7 @@ import socket, psutil, os, ipaddress,itertools,argparse
 
 class Serveur : #Class permettant de gérer le serveur
 
-	def __init__(self,PortEcoute = 1999) : #Contructeur On initialise les variables | PortEcoute falcultatif
+	def __init__(self,PortEcoute = 1998) : #Contructeur On initialise les variables | PortEcoute falcultatif
 		self.PortEcoute = PortEcoute
 
 	def LaunchServeur (self) : #Methode permettant de lancer le serveur
@@ -20,7 +20,7 @@ class Serveur : #Class permettant de gérer le serveur
 
 class Client : #Class permettant de gérer le client
 
-	def __init__(self, PortServeur = 1999) : #Contructeur on initialise les variables | PortServeur falcultatif
+	def __init__(self, PortServeur = 1998) : #Contructeur on initialise les variables | PortServeur falcultatif
 		self.PortServeur = PortServeur
 
 	def LaunchClient(self) : #Méthode permettant de lancer le client
@@ -46,6 +46,7 @@ class Client : #Class permettant de gérer le client
 		return ListIpUp
 
 	def GetNetworkAddrIpList(self) :#Permet de faire une liste de toutes les addresses ip du réseau. On utilise le masque pour faire la liste.
+		print(self.PortServeur)
 		CompteurZero = 0
 		ListIp = []
 		IPAddr = socket.gethostbyname(socket.gethostname()) #On récupère notre adresse ip
@@ -54,9 +55,9 @@ class Client : #Class permettant de gérer le client
 				if IPAddr == addr.address : #Si l'adresse ip qu'on a récupéré est égal à l'adresse ip dans la liste des interfaces
 					NetworkMask = addr.netmask #On a trouvé le masque du réseau
 		maskbi = bin(int(ipaddress.IPv4Address(NetworkMask)))
-		maskbifinal = maskbi.replace('0b','') #Permet d'enlever le 0b au debut du binaire pour pas avoir de probleme quand on compte le nombre de 0
+		maskbi = maskbi.replace('0b','') #Permet d'enlever le 0b au debut du binaire pour pas avoir de probleme quand on compte le nombre de 0
 		IPAddrbi = bin(int(ipaddress.IPv4Address(IPAddr)))
-		for bi in maskbifinal : #On compte le nombre de 0
+		for bi in maskbi : #On compte le nombre de 0
 			if int(bi) == 0 :
 				CompteurZero += 1
 		for x in map(''.join, itertools.product('01', repeat=CompteurZero)): #Permet d'incrementer la partie variable de l'adresse ip et de faire la list de toutes les ip du réseau
@@ -79,20 +80,28 @@ if __name__ == '__main__':
         |___/            |_|                                      """)
 
 	print("Outil de supervision de réseau")
-	print("Si vous voulez une aide vous pouvez faire : python3 pysupervisor.py -h\n")
+	print("Une aide est disponible avec la commande : python3 pysupervisor.py -h\n")
 	parser = argparse.ArgumentParser() #On recupère les arguments
-	parser.add_argument('-l','--launch', help='Launch Server or Client', type=str, required=True)
-	parser.add_argument('-d','--debug',help='Debug', required=False)
+	parser.add_argument('-l','--launch', help='Permet de lancer le serveur ou le client (Param: Serveur ou Client)', type=str, required=True)
+	parser.add_argument('-Pe','--PortEcoute',help='Permet de definir sur quel port le serveur va ecouter (1998 par default)', type=int, required=False)
+	parser.add_argument('-Ps','--PortServeur',help='Pernet de definir au client sur quel port le serveur ecoute (1998 par default)', type=int, required=False)
 	args = parser.parse_args()
-	if args.launch == "Server" : #Si l'argument lance le serveur
+	if args.launch.upper() == "SERVEUR" : #Si l'argument lance le serveur
 		print("Lancement du serveur...")
-		a = Serveur()
-		a.LaunchServeur()
-	if args.launch == "Client" : #Si l'argument lance le Client
+		if args.PortEcoute : #Si l'argument PortEcoute existe
+			a = Serveur(PortEcoute=args.PortEcoute)
+			a.LaunchServeur()
+		else :
+			a = Serveur()
+			a.LaunchServeur()
+	if args.launch.upper() == "CLIENT" : #Si l'argument lance le Client
 		print("Lancement du client...")
-		a = Client()
+		if args.PortServeur : #SI l'argument PortServeur existe
+			a = Client(PortServeur=args.PortServeur)
+		else :
+			a = Client()
 		ListIp = a.GetNetworkAddrIpList()
-		print("Nombre d'adresse ip sur le réseau : " + str(len(ListIp)))
+		print("Nombre d'adresse ip sur le réseau : " + str(len(ListIp)-1))
 		print("Plage d'adresse : " + str(ListIp[0]) + " - " + str(ListIp[len(ListIp)-1]))
 		ServerUp = ["169.254.239.204"]#a.IsServerUp(ListIp)
 		GetInfo = "default"
