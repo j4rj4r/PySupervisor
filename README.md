@@ -37,5 +37,5 @@ python3 pysupervisor.py -l Serveur -Pe 1234
 ```
 Et vous pouvez indiquer au client sur quel  port ecoute le serveur :
 ```
-python3 pysupervisor.py -l Serveur -Pe 1234
+python3 pysupervisor.py -l Serveur -Ps 1234
 ```
