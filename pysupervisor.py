@@ -14,7 +14,7 @@ class Serveur : #Class permettant de gérer le serveur
 		s.listen(5) #On permet 5 connexions en attente
 		while True :
 			c, addr = s.accept()
-			start_new_thread(self.sendDataComputer, (c,)) #On lance
+			start_new_thread(self.sendDataComputer, (c,)) #On lance un thread pour chaue connexion au serveur
 		s.close()
 
 	def sendDataComputer (self,c) :
@@ -22,7 +22,7 @@ class Serveur : #Class permettant de gérer le serveur
 		while True :
 			sendData = "Nom d'utilisateur : " + a[0].name + "\nSysteme d'exploitation : " + os.uname().sysname + "\nVersion du systeme : " + os.uname().version
 			c.send(sendData.encode())
-			if c.recv(1024).decode() == "end" : #Accusé de reception pour fermé la connexion
+			if c.recv(1024).decode() == "end" : #Accusé de reception pour fermer la connexion
 				break
 		c.close() #On fermme la connexion
 
@@ -39,6 +39,8 @@ class Client : #Class permettant de gérer le client
 			print (s.recv(1024).decode())
 			s.send("end".encode()) #On envoit un accusé de deconnexion
 			s.close() #On ferme la connexion
+			input('')
+			print ("\033[2J")
 		except ConnectionRefusedError :
 			print("Le serveur n'existe plus.")
 
@@ -79,7 +81,7 @@ class Client : #Class permettant de gérer le client
 
 
 
-if __name__ == '__main__':
+if __name__ == '__main__': #Partie pricipal du script
 	print("""\
  _____        _____                             _
 |  __ \      / ____|                           (_)
@@ -115,11 +117,16 @@ if __name__ == '__main__':
 		print("Plage d'adresse : " + str(ListIp[0]) + " - " + str(ListIp[len(ListIp)-1]))
 		ServerUp = ["192.168.211.131"]#a.IsServerUp(ListIp)
 		GetInfo = "default"
-		while GetInfo not in ServerUp : #Tant que l'utilisateur ne veut pas une adresse valide
-			print("Liste des ordinateurs disponibles sur le réseau : ")
-			print('\n'.join(map(str,ServerUp))) #On affiche les ip disponibles
-			GetInfo = input("Obtenir les informations de quelle ip ? ")
-			if  GetInfo not in ServerUp :
-				print("Cette adress ip n'est pas disponible ! Merci de réessayer.")
-
-		a.LaunchClient(GetInfo)
+		try :
+			while GetInfo.upper() != "EXIT": #Tant que l'utilisateur ne veut pas quitter le programme
+				print("Liste des ordinateurs disponibles sur le réseau : ")
+				print('\n'.join(map(str,ServerUp))) #On affiche les ip disponibles
+				GetInfo = input("Obtenir les informations de quelle ip ? ")
+				if  GetInfo not in ServerUp :
+					print("Cette adress ip n'est pas disponible ! Merci de réessayer.")
+					input()
+					print ("\033[2J")
+				else :
+					a.LaunchClient(GetInfo)
+		except KeyboardInterrupt :
+			print("\nFermeture du programme")
