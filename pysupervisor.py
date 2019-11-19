@@ -1,4 +1,7 @@
 import socket, psutil, os, ipaddress,itertools,argparse
+from _thread import *
+import threading
+
 
 class Serveur : #Class permettant de gérer le serveur
 
@@ -6,16 +9,22 @@ class Serveur : #Class permettant de gérer le serveur
 		self.PortEcoute = PortEcoute
 
 	def LaunchServeur (self) : #Methode permettant de lancer le serveur
-		a = psutil.users() #Permet de récupérer
 		s = socket.socket()
 		s.bind(('', self.PortEcoute))
+		s.listen(5) #On permet 5 connexions en attente
 		while True :
-			s.listen(5) #On permet 5 connexions en attente
 			c, addr = s.accept()
+			start_new_thread(self.sendDataComputer, (c,)) #On lance
+		s.close()
+
+	def sendDataComputer (self,c) :
+		a = psutil.users()
+		while True :
 			sendData = a[0].name + ";" + os.name
 			c.send(sendData.encode())
 			if c.recv(1024).decode() == "end" : #Accusé de reception pour fermé la connexion
-				c.close() #On fermme la connexion
+				break
+		c.close() #On fermme la connexion
 
 
 class Client : #Class permettant de gérer le client
@@ -23,12 +32,15 @@ class Client : #Class permettant de gérer le client
 	def __init__(self, PortServeur = 1998) : #Contructeur on initialise les variables | PortServeur falcultatif
 		self.PortServeur = PortServeur
 
-	def LaunchClient(self) : #Méthode permettant de lancer le client
-		s = socket.socket()
-		s.connect(('',self.PortServeur))
-		print (s.recv(1024).decode())
-		s.send("end".encode()) #On envoit un accusé de deconnexion
-		s.close() #On ferme la connexion
+	def LaunchClient(self, IpServeur) : #Méthode permettant de lancer le client
+		try:
+			s = socket.socket()
+			s.connect(('',self.PortServeur))
+			print (s.recv(1024).decode())
+			s.send("end".encode()) #On envoit un accusé de deconnexion
+			s.close() #On ferme la connexion
+		except ConnectionRefusedError :
+			print("Le serveur n'existe plus.")
 
 	def IsServerUp(self, ListIp): #Liste des ip avec un serveur up. Permet de voir si le port est ouvert
 		ListIpUp = []
@@ -46,7 +58,6 @@ class Client : #Class permettant de gérer le client
 		return ListIpUp
 
 	def GetNetworkAddrIpList(self) :#Permet de faire une liste de toutes les addresses ip du réseau. On utilise le masque pour faire la liste.
-		print(self.PortServeur)
 		CompteurZero = 0
 		ListIp = []
 		IPAddr = socket.gethostbyname(socket.gethostname()) #On récupère notre adresse ip
@@ -79,21 +90,20 @@ if __name__ == '__main__':
 	 _/ |            | |
         |___/            |_|                                      """)
 
-	print("Outil de supervision de réseau")
+	print("PySupervisor | Outil de supervision réseau")
 	print("Une aide est disponible avec la commande : python3 pysupervisor.py -h\n")
-	parser = argparse.ArgumentParser() #On recupère les arguments
+	parser = argparse.ArgumentParser()
 	parser.add_argument('-l','--launch', help='Permet de lancer le serveur ou le client (Param: Serveur ou Client)', type=str, required=True)
 	parser.add_argument('-Pe','--PortEcoute',help='Permet de definir sur quel port le serveur va ecouter (1998 par default)', type=int, required=False)
 	parser.add_argument('-Ps','--PortServeur',help='Pernet de definir au client sur quel port le serveur ecoute (1998 par default)', type=int, required=False)
-	args = parser.parse_args()
+	args = parser.parse_args() #On recupère les arguments
 	if args.launch.upper() == "SERVEUR" : #Si l'argument lance le serveur
 		print("Lancement du serveur...")
 		if args.PortEcoute : #Si l'argument PortEcoute existe
 			a = Serveur(PortEcoute=args.PortEcoute)
-			a.LaunchServeur()
 		else :
 			a = Serveur()
-			a.LaunchServeur()
+		a.LaunchServeur()
 	if args.launch.upper() == "CLIENT" : #Si l'argument lance le Client
 		print("Lancement du client...")
 		if args.PortServeur : #SI l'argument PortServeur existe
@@ -103,7 +113,7 @@ if __name__ == '__main__':
 		ListIp = a.GetNetworkAddrIpList()
 		print("Nombre d'adresse ip sur le réseau : " + str(len(ListIp)-1))
 		print("Plage d'adresse : " + str(ListIp[0]) + " - " + str(ListIp[len(ListIp)-1]))
-		ServerUp = ["169.254.239.204"]#a.IsServerUp(ListIp)
+		ServerUp = ["192.168.211.131"]#a.IsServerUp(ListIp)
 		GetInfo = "default"
 		while GetInfo not in ServerUp : #Tant que l'utilisateur ne veut pas une adresse valide
 			print("Liste des ordinateurs disponibles sur le réseau : ")
@@ -111,3 +121,5 @@ if __name__ == '__main__':
 			GetInfo = input("Obtenir les informations de quelle ip ? ")
 			if  GetInfo not in ServerUp :
 				print("Cette adress ip n'est pas disponible ! Merci de réessayer.")
+
+		a.LaunchClient(GetInfo)
