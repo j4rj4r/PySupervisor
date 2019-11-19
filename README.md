@@ -1,3 +1,5 @@
+![Test Image 1](3DTest.png)
+
 # PySupervisor
 
 PySupervisor permet de savoir depuis votre poste quelles sont les postes actuellement utilises, par qui et sous quel systeme.
@@ -7,10 +9,7 @@ PySupervisor permet de savoir depuis votre poste quelles sont les postes actuell
 - Multi-plateformes
 - Simple d'utilisation
 - Simple d'installation
-- Compatible with all major browsers (IE8+), compatible Zepto.js and iPad;
-- Support identification, interpretation, fliter of the HTML tags;
-- Support TeX (LaTeX expressions, Based on KaTeX), Flowchart and Sequence Diagram of Markdown extended syntax;
-- Support AMD/CMD (Require.js & Sea.js) Module Loader, and Custom/define editor plugins;
+
 
 ### Installation :
 Pour pouvoir utiliser PySupervisor vous aurez obligatoirement besoin de la librairie [Psutil](https://psutil.readthedocs.io/en/latest/#)
@@ -23,11 +22,19 @@ python3 -m pip install psutil
 ### Utilisation :
 Vous devez dans un premer temps lancer le serveur sur toutes les machines que vous voulez monitore pour cela vous devez utiliser la commande :
 ```
-python3 pysupervisor.py -l Server
+python3 pysupervisor.py -l Serveur
 ```
 Puis si vous voulez acceder aux postes disponibles sur votre reseau :
 ```
 python3 pysupervisor.py -l Client
 ```
 
-#### Utilisation de la partie client :
+#### Utilisation avancee :
+Vous pouvez demande au serveur d'ecouter sur le port que vous voulez :
+```
+python3 pysupervisor.py -l Serveur -Pe 1234
+```
+Et vous pouvez indiquer au client sur quel  port ecoute le serveur :
+```
+python3 pysupervisor.py -l Serveur -Pe 1234
+```
