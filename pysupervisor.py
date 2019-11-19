@@ -20,7 +20,7 @@ class Serveur : #Class permettant de gérer le serveur
 	def sendDataComputer (self,c) :
 		a = psutil.users()
 		while True :
-			sendData = a[0].name + ";" + os.name
+			sendData = "Nom d'utilisateur : " + a[0].name + "\nSysteme d'exploitation : " + os.uname().sysname + "\nVersion du systeme : " + os.uname().version
 			c.send(sendData.encode())
 			if c.recv(1024).decode() == "end" : #Accusé de reception pour fermé la connexion
 				break
