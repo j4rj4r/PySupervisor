@@ -1,4 +1,4 @@
-![Test Image 1](3DTest.png)
+![Test Image 1](https://github.com/j4rj4r/PySupervisor/blob/master/github_assets/pysupervision.png)
 
 # PySupervisor
 
