@@ -14,7 +14,7 @@ class Serveur : #Class permettant de gérer le serveur
 		s.listen(5) #On permet 5 connexions en attente
 		while True :
 			c, addr = s.accept()
-			start_new_thread(self.sendDataComputer, (c,)) #On lance un thread pour chaue connexion au serveur
+			start_new_thread(self.sendDataComputer, (c,)) #On lance un thread pour chaque connexion au serveur
 		s.close()
 
 	def sendDataComputer (self,c) :
@@ -24,7 +24,7 @@ class Serveur : #Class permettant de gérer le serveur
 			c.send(sendData.encode())
 			if c.recv(1024).decode() == "end" : #Accusé de reception pour fermer la connexion
 				break
-		c.close() #On fermme la connexion
+		c.close() #On ferme la connexion
 
 
 class Client : #Class permettant de gérer le client
@@ -47,16 +47,12 @@ class Client : #Class permettant de gérer le client
 	def IsServerUp(self, ListIp): #Liste des ip avec un serveur up. Permet de voir si le port est ouvert
 		ListIpUp = []
 		for ip in ListIp :
-			try :
-				s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-				s.settimeout(0.1)
-				s.sendto("Are you open bitch ?".encode(), (ip, self.PortServeur))
-				recv, svr = s.recvfrom(255)
-				s.close()
-			except socket.timeout :
-				pass
-			except ConnectionResetError:
+			sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			sock.settimeout(0.1)
+			result = sock.connect_ex((ip, self.PortServeur))
+			if result == 0:
 				ListIpUp.append(ip)
+			sock.close()
 		return ListIpUp
 
 	def GetNetworkAddrIpList(self) :#Permet de faire une liste de toutes les addresses ip du réseau. On utilise le masque pour faire la liste.
@@ -115,7 +111,7 @@ if __name__ == '__main__': #Partie pricipal du script
 		ListIp = a.GetNetworkAddrIpList()
 		print("Nombre d'adresse ip sur le réseau : " + str(len(ListIp)-1))
 		print("Plage d'adresse : " + str(ListIp[0]) + " - " + str(ListIp[len(ListIp)-1]))
-		ServerUp = ["192.168.211.131"]#a.IsServerUp(ListIp)
+		ServerUp = a.IsServerUp(ListIp)
 		GetInfo = "default"
 		try :
 			while GetInfo.upper() != "EXIT": #Tant que l'utilisateur ne veut pas quitter le programme
