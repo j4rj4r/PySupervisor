@@ -35,7 +35,7 @@ class Client : #Class permettant de gérer le client
 	def LaunchClient(self, IpServeur) : #Méthode permettant de lancer le client
 		try:
 			s = socket.socket()
-			s.connect(('',self.PortServeur))
+			s.connect((IpServeur,self.PortServeur))
 			print (s.recv(1024).decode())
 			s.send("end".encode()) #On envoit un accusé de deconnexion
 			s.close() #On ferme la connexion
