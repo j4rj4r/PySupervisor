@@ -121,7 +121,7 @@ if __name__ == '__main__': #Partie pricipal du script
 				if  GetInfo not in ServerUp :
 					print("Cette adress ip n'est pas disponible ! Merci de réessayer.")
 					input()
-					print ("\033[2J")
+					print ("\033[2J")#Permet de faire un "clear" de la console
 				else :
 					a.LaunchClient(GetInfo)
 		except KeyboardInterrupt :
